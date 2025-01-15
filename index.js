@@ -103,14 +103,25 @@ bot.on(['edited_message', 'edited_channel_post'], async (ctx) => {
         console.log('Tentando atualizar a mensagem no banco de dados...');
         console.log('Novo texto da mensagem:', editedMessage.text);
         
-        // Atualizar a mensagem no banco de dados usando o messageId
-        const updatedMessage = await prisma.message.update({
+        // Primeiro, encontrar a mensagem usando messageId
+        const existingMessage = await prisma.message.findUnique({
             where: {
                 messageId: editedMessage.message_id.toString()
+            }
+        });
+
+        if (!existingMessage) {
+            console.log('Mensagem não encontrada no banco de dados');
+            return;
+        }
+
+        // Atualizar a mensagem usando o ID
+        const updatedMessage = await prisma.message.update({
+            where: {
+                id: existingMessage.id
             },
             data: {
-                text: editedMessage.text,
-                updatedAt: new Date()
+                text: editedMessage.text
             }
         });
 
