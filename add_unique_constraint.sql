@@ -1,0 +1,1 @@
+ALTER TABLE "Message" ADD CONSTRAINT "Message_messageId_key" UNIQUE ("messageId"); 
