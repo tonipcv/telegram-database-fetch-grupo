@@ -69,15 +69,54 @@ bot.on(['message', 'channel_post'], async (ctx) => {
         console.log('Tentando salvar a mensagem no banco de dados...');
         console.log('Texto da mensagem:', message.text);
         
-        // Salvar a mensagem no banco de dados
+        // Salvar a mensagem no banco de dados com o messageId
         const savedMessage = await prisma.message.create({
             data: {
                 text: message.text,
+                messageId: message.message_id.toString()
             },
         });
         console.log('Mensagem salva com sucesso:', JSON.stringify(savedMessage, null, 2));
     } catch (error) {
         console.error('Erro ao processar a mensagem:', error);
+        console.error('Stack trace:', error.stack);
+    }
+});
+
+bot.on(['edited_message', 'edited_channel_post'], async (ctx) => {
+    console.log('Mensagem editada recebida:', JSON.stringify(ctx.update, null, 2));
+    
+    const editedMessage = ctx.editedMessage || ctx.editedChannelPost;
+    const chat = ctx.chat;
+
+    console.log('ID do chat atual:', chat.id);
+    console.log('Tipo do chat:', chat.type);
+
+    const targetId = process.env.TARGET_ID;
+
+    if (!targetId || chat.id.toString() !== targetId) {
+        console.log(`Mensagem não é do alvo. Chat ID: ${chat.id}, Target ID: ${targetId}`);
+        return;
+    }
+
+    try {
+        console.log('Tentando atualizar a mensagem no banco de dados...');
+        console.log('Novo texto da mensagem:', editedMessage.text);
+        
+        // Atualizar a mensagem no banco de dados usando o messageId
+        const updatedMessage = await prisma.message.updateMany({
+            where: {
+                messageId: editedMessage.message_id.toString()
+            },
+            data: {
+                text: editedMessage.text,
+                updatedAt: new Date()
+            }
+        });
+
+        console.log('Mensagem atualizada com sucesso:', JSON.stringify(updatedMessage, null, 2));
+    } catch (error) {
+        console.error('Erro ao atualizar a mensagem:', error);
         console.error('Stack trace:', error.stack);
     }
 });

@@ -16,5 +16,7 @@ model TradeSignal {
 model Message {
   id        Int      @id @default(autoincrement())
   text      String
+  messageId String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
