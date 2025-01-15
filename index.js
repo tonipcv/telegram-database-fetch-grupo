@@ -104,7 +104,7 @@ bot.on(['edited_message', 'edited_channel_post'], async (ctx) => {
         console.log('Novo texto da mensagem:', editedMessage.text);
         
         // Atualizar a mensagem no banco de dados usando o messageId
-        const updatedMessage = await prisma.message.updateMany({
+        const updatedMessage = await prisma.message.update({
             where: {
                 messageId: editedMessage.message_id.toString()
             },
