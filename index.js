@@ -104,7 +104,7 @@ bot.on(['edited_message', 'edited_channel_post'], async (ctx) => {
         console.log('Novo texto da mensagem:', editedMessage.text);
         
         // Primeiro, encontrar a mensagem usando messageId
-        const existingMessage = await prisma.message.findUnique({
+        const existingMessage = await prisma.message.findFirst({
             where: {
                 messageId: editedMessage.message_id.toString()
             }
