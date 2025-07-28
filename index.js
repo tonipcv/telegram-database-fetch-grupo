@@ -69,11 +69,15 @@ bot.on(['message', 'channel_post'], async (ctx) => {
         console.log('Tentando salvar a mensagem no banco de dados...');
         console.log('Texto da mensagem:', message.text);
         
-        // Salvar a mensagem no banco de dados com o messageId
+        // Gerar um messageId único combinando o ID original com timestamp
+        const uniqueMessageId = `${message.message_id}_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+        console.log('Gerando messageId único:', uniqueMessageId);
+        
+        // Salvar a mensagem no banco de dados com o messageId único
         const savedMessage = await prisma.message.create({
             data: {
                 text: message.text,
-                messageId: message.message_id.toString()
+                messageId: uniqueMessageId
             },
         });
         console.log('Mensagem salva com sucesso:', JSON.stringify(savedMessage, null, 2));
@@ -97,16 +101,19 @@ bot.on(['edited_message', 'edited_channel_post'], async (ctx) => {
     if (!targetId || chat.id.toString() !== targetId) {
         console.log(`Mensagem não é do alvo. Chat ID: ${chat.id}, Target ID: ${targetId}`);
         return;
-    }
+    }-1002014922034
 
     try {
         console.log('Tentando atualizar a mensagem no banco de dados...');
         console.log('Novo texto da mensagem:', editedMessage.text);
         
-        // Primeiro, encontrar a mensagem usando messageId
+        // Procurar por mensagens cujo messageId comece com o ID da mensagem editada
+        // Já que agora o ID é composto pelo message_id original + timestamp + string aleatória
         const existingMessage = await prisma.message.findFirst({
             where: {
-                messageId: editedMessage.message_id.toString()
+                messageId: {
+                    startsWith: `${editedMessage.message_id}_`
+                }
             }
         });
 
